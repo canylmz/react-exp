@@ -13,7 +13,7 @@ export class Country extends Component {
 
         return (
             <div>
-                {countries.filter(function (item) {return !!item.iso3;}).map((country,key) => (
+                {countries.filter(function (country) {return !!country.iso3;}).map((country,key) => (
                     <div key={key} className="alert alert-primary ">
                         <img className={'mr-3'} src={flagPath + country.iso2 + '/flat/64.png'} alt={country.iso3}/>
                         <b className={'mr-3'}>{country.name}</b>
