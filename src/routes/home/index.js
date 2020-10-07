@@ -9,13 +9,16 @@ export class App extends Component {
         countries: [],
         loading: false,
         currentPage: 1,
-        perPage: 15
+        perPage: 15,
+        filter:''
     };
 
     componentDidMount() {
         const getCountries = async () => {
             this.setState({ loading: true });
             const results = await api.get('countries');
+            // const bla = [results.data.countries].filter(country => country.includes('T'));
+            // this.setState({ countries: bla });
             this.setState({ countries: results.data.countries });
             this.setState({ loading: false });
         };
@@ -23,12 +26,23 @@ export class App extends Component {
         getCountries();
     }
 
+    handleChange = event => {
+        this.setState({ filter: event.target.value });
+    };
+
     render() {
-        const { currentPage, perPage, countries, loading } = this.state;
+        const { currentPage, perPage, countries, loading,filter } = this.state;
+
+        const lowerCasedFilter = filter.toLowerCase();
+        const filteredData = countries.filter(item => {
+            return Object.keys(item).some(key =>
+                item[key].toLowerCase().includes(lowerCasedFilter)
+            );
+        });
 
         const indexOfLastPost = currentPage * perPage;
         const indexOfFirstPost = indexOfLastPost - perPage;
-        const currentPosts = countries.slice(indexOfFirstPost, indexOfLastPost);
+        const currentData = filteredData.slice(indexOfFirstPost, indexOfLastPost);
 
         const paginate = pageNum => this.setState({ currentPage: pageNum });
 
@@ -39,9 +53,18 @@ export class App extends Component {
         return (
             <div className="container">
                 <h1 className="my-5 text-primary text-center">Countries</h1>
-                <Country countries={currentPosts} loading={loading} />
+                <form>
+                    <div className="form-group row">
+                        <label  className="col-sm-2 col-form-label">Search</label>
+                        <div className="col-sm-10">
+                            <input type="text"  value={filter} onChange={this.handleChange} className="form-control"/>
+                        </div>
+                    </div>
+                </form>
+
+                <Country countries={currentData} loading={loading} />
                 <Pagination perPage={perPage}
-                            totalCount={countries.length}
+                            totalCount={filteredData.length}
                             currentPage={currentPage}
                             paginate={paginate}
                             nextPage={nextPage}
